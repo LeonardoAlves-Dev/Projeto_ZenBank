@@ -6,7 +6,7 @@ import random
 
 
 # ==========================================
-# 🧱 PARTE 1: BACKEND (Lógica Melhorada)
+# 🧱 PARTE 1: BACKEND (Lógica de Negócio)
 # ==========================================
 
 class Conta:
@@ -37,13 +37,23 @@ class Conta:
             return True
         return False
 
+    # NOVO MÉTODO: Pagar (Corrige o bug de duplicidade)
+    def pagar(self, valor):
+        if valor > 0 and self.saldo >= valor:
+            self.saldo -= valor
+            self.registrar_historico("Pagamento Boleto 📄", -valor)
+            return True
+        return False
+
     def transferir(self, valor, conta_destino):
-        # Tenta sacar da origem. Se der certo, deposita no destino.
-        if self.sacar(valor):
-            conta_destino.depositar(valor)
-            # Ajusta o histórico para ficar mais claro
-            self.historico[-1]["operacao"] = f"Transf. Enviada 📤"
-            conta_destino.historico[-1]["operacao"] = f"Transf. Recebida 📥 ({self.nome})"
+        # Aqui usamos o sacar internamente, mas ajustamos o histórico manualmente depois
+        # Para evitar confusão, vamos fazer a lógica manual aqui também:
+        if valor > 0 and self.saldo >= valor:
+            self.saldo -= valor
+            self.registrar_historico("Transf. Enviada 📤", -valor)
+
+            conta_destino.saldo += valor
+            conta_destino.registrar_historico(f"Transf. Recebida 📥 ({self.nome})", valor)
             return True
         return False
 
@@ -66,6 +76,15 @@ class ContaCorrente(Conta):
         if valor > 0 and saldo_total >= valor:
             self.saldo -= valor
             self.registrar_historico("Saque (CC) 💳", -valor)
+            return True
+        return False
+
+    # Polimorfismo também no pagamento para usar o limite
+    def pagar(self, valor):
+        saldo_total = self.saldo + self.cheque_especial
+        if valor > 0 and saldo_total >= valor:
+            self.saldo -= valor
+            self.registrar_historico("Pagamento Boleto 📄", -valor)
             return True
         return False
 
@@ -138,7 +157,7 @@ class BancoController:
 
 
 # ==========================================
-# 🎨 PARTE 2: FRONTEND V4 (Navegação Fluida)
+# 🎨 PARTE 2: FRONTEND V4 (Interface Gráfica)
 # ==========================================
 
 class AppBancario(ctk.CTk):
@@ -146,7 +165,7 @@ class AppBancario(ctk.CTk):
         super().__init__()
 
         # Configuração da Janela
-        self.title("Senai Bank V4")
+        self.title("Senai Bank V4.1")
         self.geometry("400x650")
         self.centralizar_janela(400, 650)
 
@@ -163,7 +182,6 @@ class AppBancario(ctk.CTk):
         self.mostrar_tela_login()
 
     def centralizar_janela(self, largura, altura):
-        # Lógica matemática para achar o centro da tela
         tela_largura = self.winfo_screenwidth()
         tela_altura = self.winfo_screenheight()
         pos_x = (tela_largura // 2) - (largura // 2)
@@ -240,7 +258,9 @@ class AppBancario(ctk.CTk):
         topo = ctk.CTkFrame(self.container, fg_color="#1e1e1e", corner_radius=0)
         topo.pack(fill="x", ipady=20)
 
-        ctk.CTkLabel(topo, text=f"Olá, {self.conta_logada.nome.split()[0]} 👋", font=("Arial", 16)).pack()
+        # Pega o primeiro nome
+        primeiro_nome = self.conta_logada.nome.split()[0].title()
+        ctk.CTkLabel(topo, text=f"Olá, {primeiro_nome} 👋", font=("Arial", 16)).pack()
         self.lbl_saldo = ctk.CTkLabel(topo, text=f"R$ {self.conta_logada.saldo:.2f}", font=("Arial", 36, "bold"),
                                       text_color="#2CC985")
         self.lbl_saldo.pack(pady=5)
@@ -250,7 +270,6 @@ class AppBancario(ctk.CTk):
         grid = ctk.CTkFrame(self.container, fg_color="transparent")
         grid.pack(pady=30)
 
-        # Função auxiliar para criar botões quadrados bonitos
         def criar_botao_menu(texto, icone, comando, linha, coluna):
             btn = ctk.CTkButton(grid, text=f"{icone}\n{texto}", width=100, height=80,
                                 font=("Arial", 14), fg_color="#2b2b2b", hover_color="#3a3a3a",
@@ -267,20 +286,17 @@ class AppBancario(ctk.CTk):
         ctk.CTkButton(self.container, text="Sair da Conta", fg_color="#c0392b", width=200,
                       command=self.mostrar_tela_login).pack(side="bottom", pady=30)
 
-    # --- TELA GENÉRICA: TRANSAÇÕES (Depósito, Saque, Transferência) ---
+    # --- TELA GENÉRICA: TRANSAÇÕES ---
     def mostrar_tela_transacao(self, tipo_transacao):
         self.limpar_container()
 
         ctk.CTkLabel(self.container, text=f"{tipo_transacao}", font=("Arial", 22, "bold")).pack(pady=30)
 
-        # Se for transferência, precisa de mais campos
         entry_destino = None
-        combo_tipo = None
 
         if tipo_transacao == "Transferência":
             ctk.CTkLabel(self.container, text="Tipo de Transferência").pack()
-            combo_tipo = ctk.CTkComboBox(self.container, values=["Pix", "TED", "DOC"], width=250)
-            combo_tipo.pack(pady=5)
+            ctk.CTkComboBox(self.container, values=["Pix", "TED", "DOC"], width=250).pack(pady=5)
 
             entry_destino = ctk.CTkEntry(self.container, placeholder_text="Chave Pix ou CPF Destino", width=250)
             entry_destino.pack(pady=10)
@@ -300,10 +316,12 @@ class AppBancario(ctk.CTk):
                 elif tipo_transacao == "Saque":
                     sucesso = self.conta_logada.sacar(valor)
                     msg = "Saque realizado!" if sucesso else "Saldo insuficiente."
+
+                # AQUI ESTAVA O PROBLEMA: Agora chamamos pagar() e não sacar()
                 elif tipo_transacao == "Pagamento":
-                    sucesso = self.conta_logada.sacar(valor)
-                    self.conta_logada.registrar_historico("Pagamento Boleto 📄", -valor)
+                    sucesso = self.conta_logada.pagar(valor)
                     msg = "Conta Paga!" if sucesso else "Saldo insuficiente."
+
                 elif tipo_transacao == "Transferência":
                     sucesso, msg = self.banco.realizar_transferencia(self.conta_logada, entry_destino.get(), valor)
 
@@ -331,7 +349,7 @@ class AppBancario(ctk.CTk):
         if not self.conta_logada.historico:
             ctk.CTkLabel(scroll_frame, text="Nenhuma movimentação.").pack(pady=20)
 
-        for item in reversed(self.conta_logada.historico):  # Mostra do mais recente pro antigo
+        for item in reversed(self.conta_logada.historico):
             cor = "#2CC985" if item['valor'] > 0 else "#E74C3C"
             card = ctk.CTkFrame(scroll_frame, fg_color="#2b2b2b")
             card.pack(fill="x", pady=5, padx=5)
@@ -359,8 +377,6 @@ class AppBancario(ctk.CTk):
 
         3. Rendimento Poupança
            Rende 5% a cada simulação.
-
-        Contato: suporte@senaibank.com
         """
         ctk.CTkLabel(self.container, text=texto_ajuda, justify="left").pack(pady=20)
         ctk.CTkButton(self.container, text="Voltar", width=250, command=self.mostrar_dashboard).pack()
