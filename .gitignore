@@ -1,0 +1,13 @@
+# Arquivos de configuração do PyCharm
+.idea/
+*.iml
+
+# Arquivos compilados do Python (lixo)
+__pycache__/
+
+# Ambiente Virtual
+venv/
+.venv/
+
+# Banco de dados local (Segurança)
+*.json
