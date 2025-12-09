@@ -10,4 +10,4 @@ venv/
 .venv/
 
 # Banco de dados local (Segurança)
-*.json
+#*.json

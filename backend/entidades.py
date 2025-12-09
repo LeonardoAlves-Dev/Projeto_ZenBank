@@ -14,8 +14,6 @@ class Conta:
             self.historico = historico
         else:
             self.historico = []
-        # Ternário:
-        # self.historico = historico if historico is not None else []
 
     def registrar_historico(self, operacao, valor):
         self.historico.append({"operacao": operacao, "valor": valor})

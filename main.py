@@ -194,12 +194,12 @@ class ZenBankApp(ctk.CTk):
 
         # Botão Menu (Configurações)
         img_menu = self.imgs.get('menu')
-        btn_menu = ctk.CTkButton(self.canvas, text="", image=img_menu, width=40, height=40, fg_color="transparent", hover_color="#333", command=self.tela_configuracoes)
+        btn_menu = ctk.CTkButton(self.canvas, text="", image=img_menu, width=40, height=40, fg_color="transparent", hover_color="#036011", command=self.tela_configuracoes)
         if not img_menu:
             btn_menu.configure(text="☰")
         self.add_widget(0.90, 0.05, btn_menu)
 
-        self.canvas.create_text(30, 140, text="Saldo disponível", fill="gray", font=("Arial", 14), anchor="w", tags="ui")
+        self.canvas.create_text(30, 150, text="Saldo disponível", fill="gray", font=("Arial", 14), anchor="w", tags="ui")
 
         saldo_texto = self.formatar_moeda(self.conta_logada.saldo)
         if len(saldo_texto) <= 12:
@@ -208,7 +208,7 @@ class ZenBankApp(ctk.CTk):
             font_size = 30
 
         self.lbl_saldo = ctk.CTkLabel(self.canvas, text=saldo_texto, font=("Arial", font_size, "bold"), text_color=COR_PRIMARIA, fg_color="transparent", bg_color="#0a1a10")
-        self.add_widget(0.08, 0.23, self.lbl_saldo, anchor="w")
+        self.add_widget(0.08, 0.24, self.lbl_saldo, anchor="w")
 
         # Menu de Opções
         start_y, gap = 0.35, 0.10
@@ -229,8 +229,8 @@ class ZenBankApp(ctk.CTk):
             if not img and self.imgs.get('logo_ctk'):
                 img = self.imgs.get('logo_ctk')
 
-            btn = ctk.CTkButton(self.canvas, text=f"  {texto}", image=img, compound="left", width=340, height=55,
-                                fg_color=COR_INPUTS, hover_color="#333", anchor="w", font=("Arial", 15, "bold"),
+            btn = ctk.CTkButton(self.canvas, text=f"  {texto}", image=img, compound="left", width=340, height=50,
+                                fg_color="transparent", hover_color="#036011", anchor="w", font=("Arial", 15, "bold"),
                                 command=comando, corner_radius=12, bg_color="#0a1a10")
 
             self.add_widget(0.5, start_y + (i * 0.075), btn)
@@ -245,13 +245,13 @@ class ZenBankApp(ctk.CTk):
 
         self.canvas.create_text(200, 100, text="Configurações ⚙️", fill="white", font=("Arial", 28, "bold"), tags="ui")
 
-        btn_editar = ctk.CTkButton(self.canvas, text="👤  Editar Perfil", width=340, height=60, fg_color=COR_INPUTS, hover_color="#333", font=("Arial", 16), anchor="w", command=self.tela_editar_perfil, bg_color="#0a1a10")
+        btn_editar = ctk.CTkButton(self.canvas, text="👤  Editar Perfil", width=340, height=60, fg_color="transparent", hover_color="#036011", font=("Arial", 16), anchor="w", command=self.tela_editar_perfil, bg_color="#0a1a10")
         self.add_widget(0.5, 0.30, btn_editar)
 
         btn_excluir = ctk.CTkButton(self.canvas, text="🗑️  Excluir Conta", width=340, height=60, fg_color="#330000", hover_color="#550000", text_color=COR_ERRO, font=("Arial", 16, "bold"), anchor="w", command=self.confirmar_exclusao, bg_color="#0a1a10")
         self.add_widget(0.5, 0.85, btn_excluir)
 
-        btn_sair = ctk.CTkButton(self.canvas, text="⏻  Sair do App", width=340, height=60, fg_color=COR_INPUTS, hover_color="#333", text_color=COR_ERRO, font=("Arial", 16), anchor="w", command=self.tela_login, bg_color="#0a1a10")
+        btn_sair = ctk.CTkButton(self.canvas, text="⏻  Sair do App", width=340, height=60, fg_color="transparent", hover_color="#550000", text_color=COR_ERRO, font=("Arial", 16), anchor="w", command=self.tela_login, bg_color="#0a1a10")
         self.add_widget(0.5, 0.42, btn_sair)
 
     # --- TELA EDITAR PERFIL ---

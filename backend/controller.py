@@ -2,7 +2,6 @@ import json
 import os
 from backend.entidades import ContaCorrente, ContaPoupanca
 
-
 class BancoController:
     def __init__(self):
         self.contas = []
