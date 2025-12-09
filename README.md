@@ -47,6 +47,5 @@ ZenBank/
 │   └── banco_dados.json # Banco de dados local em JSON
 ├── main.py              # Frontend (View) e Ponto de Entrada
 └── README.md            # Documentação
-
----
+```
 *Desenvolvido por Leonardo Alves - Estudante de T.I. e Ciência de Dados.*
