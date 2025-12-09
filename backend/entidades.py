@@ -6,9 +6,16 @@ class Conta:
         self.cpf = cpf
         self.senha = senha
         self.saldo = saldo
-        self.numero_conta = random.randint(1000, 9999)
-        self.historico = historico if historico is not None else []
+        self.numero_conta = random.randint(10000, 99999)
+        self.agencia = "0001"
         self.tipo = 'Conta'
+
+        if historico is not None:
+            self.historico = historico
+        else:
+            self.historico = []
+        # Ternário:
+        # self.historico = historico if historico is not None else []
 
     def registrar_historico(self, operacao, valor):
         self.historico.append({"operacao": operacao, "valor": valor})
@@ -30,7 +37,7 @@ class Conta:
     def pagar(self, valor):
         if valor > 0 and self.saldo >= valor:
             self.saldo -= valor
-            self.registrar_historico("Pagamento 📄", -valor)
+            self.registrar_historico("Pagamento Boleto 📄", -valor)
             return True
         return False
 
@@ -47,7 +54,8 @@ class Conta:
         return {
             "tipo": self.tipo, "nome": self.nome, "cpf": self.cpf,
             "senha": self.senha, "saldo": self.saldo, "historico": self.historico,
-            "extra": getattr(self, "cheque_especial", 0)
+            "extra": getattr(self, "cheque_especial", 0),
+            "telefone": getattr(self, "telefone", "")
         }
 
 class ContaCorrente(Conta):
@@ -61,6 +69,14 @@ class ContaCorrente(Conta):
         if valor > 0 and saldo_total >= valor:
             self.saldo -= valor
             self.registrar_historico("Saque (CC) 💳", -valor)
+            return True
+        return False
+
+    def pagar(self, valor):
+        saldo_total = self.saldo + self.cheque_especial
+        if valor > 0 and saldo_total >= valor:
+            self.saldo -= valor
+            self.registrar_historico("Pagamento (CC) 📄", -valor)
             return True
         return False
 

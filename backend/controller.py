@@ -1,6 +1,6 @@
 import json
 import os
-from .entidades import ContaCorrente, ContaPoupanca
+from backend.entidades import ContaCorrente, ContaPoupanca
 
 
 class BancoController:
